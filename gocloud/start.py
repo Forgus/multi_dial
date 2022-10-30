@@ -1,7 +1,9 @@
 from router import Router
 import time
+import getpass
 
-ros = Router('')
+pwd = getpass.getpass(prompt="Input the router's login password:")
+ros = Router(pwd)
 multi_pppoe_status = ros.get_multi_pppoe_status()
 print('multi_pppoe_status: ' + multi_pppoe_status)
 restart_num = 0
