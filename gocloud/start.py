@@ -1,7 +1,7 @@
 from router import Router
 import time
 
-ros = Router('Forgus@1876')
+ros = Router('')
 multi_pppoe_status = ros.get_multi_pppoe_status()
 print('multi_pppoe_status: ' + multi_pppoe_status)
 restart_num = 0
