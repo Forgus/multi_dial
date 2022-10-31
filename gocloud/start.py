@@ -2,10 +2,33 @@ from router import Router
 import time
 import getpass
 
-pwd = getpass.getpass(prompt="admin@router's password:")
-ros = Router(pwd)
+url = input("Router's host(192.168.1.1):")
+if len(url) == 0:
+    url = '192.168.1.1'
+if ':' in url:
+    host = url.split(':')[0]
+else:
+    host = url
+pwd = getpass.getpass(prompt="admin@" + host + "'s password:")
+ros = Router(pwd, url)
 multi_pppoe_status = ros.get_multi_pppoe_status()
-print('multi_pppoe_status: ' + multi_pppoe_status)
+macvlan_settings = ros.multi_dial.get_macvlan_settings()
+config_list = macvlan_settings['tblsection']['list']
+
+
+def get_config_value(config, key):
+    return config['cbid.macvlan.cfg03b112.' + key]['value']
+
+
+print('多拨配置: ')
+print('绑定接口 备注 拨号账号 拨号密码 拨号个数')
+for l in config_list:
+    print(get_config_value(l, 'bind_if') + ' ' +
+          get_config_value(l, 'remarks') + ' ' +
+          get_config_value(l, 'username') + ' ' +
+          get_config_value(l, 'password') + ' ' +
+          get_config_value(l, 'dial_num') + ' ')
+print('多拨状态: ' + multi_pppoe_status)
 restart_num = 0
 while (multi_pppoe_status != 'Success'):
     success_list = ros.v_iface.success_list

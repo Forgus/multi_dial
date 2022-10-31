@@ -5,9 +5,9 @@ import requests as req
 class LoginPage():
 
     def __init__(self, base_url):
-        self.login_page = req.get(base_url + '/admin').text
+        self.html = req.get(base_url + '/admin').text
         self.login_token = {}
-        for line in self.login_page.split('\n'):
+        for line in self.html.split('\n'):
             if 'timestamp' in line:
                 self.login_token['timestamp'] = line.split('"')[1]
             if 'csrftoken' in line:
