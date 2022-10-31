@@ -1,5 +1,6 @@
 import requests as req
 
+
 class MultiDial():
 
     def __init__(self, base_url, headers):
@@ -7,9 +8,9 @@ class MultiDial():
         self.headers = headers
 
     def get_macvlan_settings(self):
-        resp = req.get(self.base_url + '/admin/multiwan/macvlan/macvlan',headers=self.headers)
+        resp = req.get(self.base_url +
+                       '/admin/multiwan/macvlan/macvlan', headers=self.headers)
         return resp.json()
-        
 
     def shutdown_iface(self, ifname):
         shutdown_url = self.base_url + "/admin/network/iface_shutdown/" + ifname
@@ -18,5 +19,4 @@ class MultiDial():
 
     def restart_macvlan(self):
         restart_url = self.base_url + "/servicectl/restart/macvlan"
-        resp = req.get(restart_url, headers=self.headers)
-        print("restart macvlan result: " + resp.text)
+        req.get(restart_url, headers=self.headers)
