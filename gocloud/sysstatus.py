@@ -33,7 +33,6 @@ class Interface():
         return self.multi_pppoe_status
 
     def update_status(self):
-        self.iface_list.clear()
         self.success_list.clear()
         self.fail_list.clear()
         return self.fetch_status()
