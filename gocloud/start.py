@@ -53,6 +53,7 @@ while (multi_pppoe_status != 'Success'):
         print("wait more 10 seconds to pppoe connect...wait_times:%d" %
               (wait_times))
         time.sleep(10)
-        multi_pppoe_status = ros.update_multi_pppoe_status()
+        print("multi_pppoe_status:" + multi_pppoe_status)
         wait_times = wait_times + 1
+    multi_pppoe_status = ros.update_multi_pppoe_status()
 print('恭喜,', len(ros.v_iface.iface_list), '拨成功！')
