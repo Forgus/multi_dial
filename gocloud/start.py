@@ -44,11 +44,11 @@ while (multi_pppoe_status != 'Success'):
     restart_num = restart_num + 1
     print("restart macvlan...restart times: %d" % (restart_num))
     ros.restart_macvlan()
-    print("sleep 15 seconds to wait macvlan restart...")
-    time.sleep(15)
+    print("sleep 20 seconds to wait macvlan restart...")
+    time.sleep(20)
     multi_pppoe_status = ros.get_multi_pppoe_status()
     wait_times = 1
-    while (multi_pppoe_status == 'Pending' and wait_times <= 60):
+    while (multi_pppoe_status == 'Pending' and wait_times <= 30):
         print("wait more 10 seconds to pppoe connect...wait_times:%d" %
               (wait_times))
         time.sleep(10)
