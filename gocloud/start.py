@@ -30,29 +30,33 @@ for l in config_list:
           get_config_value(l, 'dial_num') + ' ')
 print('多拨状态: ' + multi_pppoe_status)
 restart_num = 0
+iface_num = ros.v_iface.iface_num
 while (multi_pppoe_status != 'Success'):
+    print("多拨结果:" + multi_pppoe_status)
     success_list = ros.v_iface.success_list
     success_num = len(success_list)
-    if success_num != 0:
-        print('成功个数:', success_num, '失败个数:',
-              len(ros.v_iface.fail_list))
+    fail_num = len(ros.v_iface.fail_list)
+    print('成功个数:', success_num, '失败个数:', fail_num)
+    if success_num != 0 and success_num != iface_num:
         print('重拨...')
         for ifname in success_list:
             ros.shutdown_iface(ifname)
         print("sleep 20 seconds to wait iface shutdown...")
         time.sleep(20)
-    restart_num = restart_num + 1
-    print("restart macvlan...restart times: %d" % (restart_num))
-    ros.restart_macvlan()
-    print("sleep 30 seconds to wait macvlan restart...")
-    time.sleep(30)
-    multi_pppoe_status = ros.get_multi_pppoe_status()
-    wait_times = 1
-    while (multi_pppoe_status == 'Pending' and wait_times <= 30):
-        print("wait more 10 seconds to pppoe connect...wait_times:%d" %
-              (wait_times))
-        time.sleep(10)
+    elif success_num != iface_num:
+        restart_num = restart_num + 1
+        print("restart macvlan...restart times: %d" % (restart_num))
+        ros.restart_macvlan()
+        print("sleep 30 seconds to wait macvlan restart...")
+        time.sleep(30)
         multi_pppoe_status = ros.get_multi_pppoe_status()
         print("多拨结果:" + multi_pppoe_status)
-        wait_times = wait_times + 1
-print('恭喜,', len(ros.v_iface.iface_list), '拨成功！')
+        wait_times = 1
+        while (multi_pppoe_status == 'Pending' and wait_times <= 30):
+            print("wait more 10 seconds to pppoe connect...wait_times:%d" %
+                  (wait_times))
+            time.sleep(10)
+            multi_pppoe_status = ros.get_multi_pppoe_status()
+            print("多拨结果:" + multi_pppoe_status)
+            wait_times = wait_times + 1
+print('恭喜,', iface_num, '拨成功！')
