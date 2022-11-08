@@ -39,13 +39,13 @@ while (multi_pppoe_status != 'Success'):
         print('重拨...')
         for ifname in success_list:
             ros.shutdown_iface(ifname)
-        print("sleep 25 seconds to wait iface shutdown...")
-        time.sleep(25)
+        print("sleep 20 seconds to wait iface shutdown...")
+        time.sleep(20)
     restart_num = restart_num + 1
     print("restart macvlan...restart times: %d" % (restart_num))
     ros.restart_macvlan()
-    print("sleep 15 seconds to wait macvlan restart...")
-    time.sleep(15)
+    print("sleep 20 seconds to wait macvlan restart...")
+    time.sleep(20)
     multi_pppoe_status = ros.get_multi_pppoe_status()
     wait_times = 1
     while (multi_pppoe_status == 'Pending' and wait_times <= 30):
