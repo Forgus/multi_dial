@@ -16,9 +16,6 @@ class Router():
     def get_multi_pppoe_status(self):
         return self.v_iface.fetch_status()
 
-    def update_multi_pppoe_status(self):
-        self.v_iface.update_status()
-
     def shutdown_iface(self, ifname):
         self.multi_dial.shutdown_iface(ifname)
 
