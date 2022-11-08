@@ -43,7 +43,7 @@ while (multi_pppoe_status != 'Success'):
             ros.shutdown_iface(ifname)
         print("sleep 20 seconds to wait iface shutdown...")
         time.sleep(20)
-    elif success_num != iface_num:
+    if success_num != iface_num:
         restart_num = restart_num + 1
         print("restart macvlan...restart times: %d" % (restart_num))
         ros.restart_macvlan()
