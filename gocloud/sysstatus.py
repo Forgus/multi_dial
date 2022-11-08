@@ -15,7 +15,7 @@ class Interface():
         check_status_url = self.base_url + \
             "/admin/network/iface_status?type=" + self.type
         resp = req.get(check_status_url, headers=self.headers)
-        return resp.json()
+        return len(resp.json())
 
     def fetch_status(self):
         check_status_url = self.base_url + \

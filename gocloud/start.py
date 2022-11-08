@@ -36,7 +36,7 @@ while (multi_pppoe_status != 'Success'):
     success_list = ros.v_iface.success_list
     success_num = len(success_list)
     fail_num = len(ros.v_iface.fail_list)
-    print('成功个数:', success_num, '失败个数:', fail_num)
+    print('成功个数:', success_num, '失败个数:', fail_num, '总接口数:', iface_num)
     if success_num != 0 and success_num != iface_num:
         print('重拨...')
         for ifname in success_list:
