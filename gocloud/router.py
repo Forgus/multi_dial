@@ -5,8 +5,8 @@ from multiwan import MultiDial
 
 class Router():
 
-    def __init__(self, password, ip='192.168.1.1'):
-        self.base_url = 'http://' + ip + '/cgi-bin/webui'
+    def __init__(self, password, url='192.168.1.1'):
+        self.base_url = 'http://' + url + '/cgi-bin/webui'
         self.login_page = login.LoginPage(self.base_url)
         self.headers = login.login(
             self.base_url, self.login_page.login_token, password)
