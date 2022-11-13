@@ -1,33 +1,23 @@
-from urllib.parse import urlencode
 import requests as req
+import base64
+import json
 
 
-class LoginPage():
-
-    def __init__(self, base_url):
-        self.login_page = req.get(base_url + '/login').text
-        self.login_token = {}
-        for line in self.login_page.split('\n'):
-            if 'timestamp' in line:
-                self.login_token['timestamp'] = line.split('"')[1]
-            if 'csrftoken' in line:
-                self.login_token['csrftoken'] = line.split('"')[1]
-                break
+def base64_encode(param):
+    return base64.b64encode(param)
 
 
-def login(base_url, login_token, password):
-    form_data = {
+def login(base_url, password):
+    payload = json.dumps({
         'username': 'admin',
-        'password': password,
-        'csrftoken': login_token['csrftoken'],
-        'timestamp': login_token['timestamp']
-
-    }
-    payload = urlencode(form_data)
+        'pass': base64_encode(password),
+        'passwd': 'd77160f4d93ad05a88f50bed60e2dafd',
+        'remember_password': true
+    })
     headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json',
     }
-    resp = req.post(base_url + '/admin',
+    resp = req.post(base_url + '/login',
                     headers=headers, data=payload)
     resp_headers = resp.request.headers
     return {'Cookie': resp_headers['Cookie']}
