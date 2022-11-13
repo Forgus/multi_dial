@@ -1,4 +1,6 @@
 import login
+import json
+import requests as req
 
 
 class Router():
@@ -28,6 +30,7 @@ class Router():
         dial_num = resp_data['vlan_total']
         success_list = []
         fail_list = []
+        dial_info = {}
         for iface in resp_data['vlan_data']:
             enabled = iface['enabled']
             ip_addr = iface['pppoe_ip_addr']
@@ -38,17 +41,16 @@ class Router():
                 fail_list.append(vlan_name)
             dial_info['interface'] = iface['interface']
             dial_info['username'] = iface['username']
-        dial_info = {}
         dial_info['dial_num'] = dial_num
         dial_info['success_list'] = success_list
         dial_info['fail_list'] = fail_list
         success_num = len(success_list)
         if success_num == dial_num:
-            dial_info['status', 'Success']
+            dial_info['status'] = 'Success'
         elif success_num == 0 and enabled == 'yes':
-            dial_info['status', 'Pending']
+            dial_info['status'] = 'Pending'
         else:
-            dial_info['status', 'Failed']
+            dial_info['status'] = 'Failed'
         return dial_info
 
     def gen_id_str(num):

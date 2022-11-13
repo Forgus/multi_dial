@@ -19,7 +19,7 @@ multi_pppoe_status = dial_info['status']
 print('多拨配置: ')
 print('绑定接口 拨号账号 拨号个数')
 print(dial_info['interface'] + ' ' +
-      dial_info['username'] + ' ' + dial_info['dial_num'])
+      dial_info['username'] + ' ' + str(dial_info['dial_num']))
 print('多拨状态: ' + multi_pppoe_status)
 
 restart_num = 0
