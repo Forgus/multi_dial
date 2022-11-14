@@ -31,6 +31,7 @@ class Router():
         success_list = []
         fail_list = []
         dial_info = {}
+        config_list = []
         for iface in resp_data['vlan_data']:
             enabled = iface['enabled']
             ip_addr = iface['pppoe_ip_addr']
@@ -39,8 +40,15 @@ class Router():
                 success_list.append(vlan_name)
             else:
                 fail_list.append(vlan_name)
-            dial_info['interface'] = iface['interface']
-            dial_info['username'] = iface['username']
+            config_info = {}
+            config_info['vlan_name'] = vlan_name
+            config_info['username'] = iface['username']
+            config_info['passwd'] = iface['passwd']
+            config_info['ip_addr'] = ip_addr
+            config_info['comment'] = iface['comment']
+            config_info['enabled'] = '启用' if enabled == 'yes' else '停用'
+            config_list.append(config_info)
+        dial_info['config_list'] = config_list
         dial_info['dial_num'] = dial_num
         dial_info['success_list'] = success_list
         dial_info['fail_list'] = fail_list
@@ -53,30 +61,31 @@ class Router():
             dial_info['status'] = 'Failed'
         return dial_info
 
-    def gen_id_str(num):
-        id_str = str(list(range(1, num+1)))
-        id_str = id_str.lstrip('[')
-        id_str = id_str.rstrip(']')
-        return id_str
+    def gen_id_str(self, num):
+        id_list = list(range(1, num+1))
+        id_str = ''
+        for id in id_list:
+            id_str = id_str + str(id) + ','
+        return id_str.rstrip(',')
 
     def macvlan_down(self, dial_num):
         payload = json.dumps({
             "action": "vlan_down",
             "func_name": "wan",
             "param": {
-                "id": gen_id_str(dial_num)
+                "id": self.gen_id_str(dial_num)
             }
         })
         resp = req.post(self.common_url, headers=self.headers, data=payload)
-        print("macvlan_down,result:" + resp.text)
+        print("macvlan_down,result:" + resp.json()['ErrMsg'])
 
     def macvlan_up(self, dial_num):
         payload = json.dumps({
             "action": "vlan_up",
             "func_name": "wan",
             "param": {
-                "id": gen_id_str(dial_num)
+                "id": self.gen_id_str(dial_num)
             }
         })
         resp = req.post(self.common_url, headers=self.headers, data=payload)
-        print('macvlan_up result:' + resp.text)
+        print('macvlan_up result:' + resp.json()['ErrMsg'])
