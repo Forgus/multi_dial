@@ -41,6 +41,7 @@ class Router():
             else:
                 fail_list.append(vlan_name)
             config_info = {}
+            config_info['id'] = iface['id']
             config_info['vlan_name'] = vlan_name
             config_info['username'] = iface['username']
             config_info['passwd'] = iface['passwd']
@@ -61,30 +62,29 @@ class Router():
             dial_info['status'] = 'Failed'
         return dial_info
 
-    def gen_id_str(self, num):
-        id_list = list(range(1, num+1))
+    def gen_id_str(self, id_list):
         id_str = ''
         for id in id_list:
             id_str = id_str + str(id) + ','
         return id_str.rstrip(',')
 
-    def macvlan_down(self, dial_num):
+    def macvlan_down(self, id_list):
         payload = json.dumps({
             "action": "vlan_down",
             "func_name": "wan",
             "param": {
-                "id": self.gen_id_str(dial_num)
+                "id": self.gen_id_str(id_list)
             }
         })
         resp = req.post(self.common_url, headers=self.headers, data=payload)
         print("macvlan_down,result:" + resp.json()['ErrMsg'])
 
-    def macvlan_up(self, dial_num):
+    def macvlan_up(self, id_list):
         payload = json.dumps({
             "action": "vlan_up",
             "func_name": "wan",
             "param": {
-                "id": self.gen_id_str(dial_num)
+                "id": self.gen_id_str(id_list)
             }
         })
         resp = req.post(self.common_url, headers=self.headers, data=payload)
