@@ -90,3 +90,18 @@ class Router():
             }
         })
         req.post(self.common_url, headers=self.headers, data=payload)
+
+    def add_dial_config(self, vlan_name, username, passwd, interface, comment=''):
+        payload = json.dumps({
+            "action": "vlan_add",
+            "func_name": "wan",
+            "param": {
+                "vlan_name": vlan_name,
+                "username": username,
+                "passwd": passwd,
+                "interface": interface,
+                "comment": comment,
+                "vlan_internet": 2
+            }
+        })
+        req.post(self.common_url, headers=self.headers, data=payload)
