@@ -6,6 +6,7 @@ import requests as req
 class Router():
 
     def __init__(self, password, ip='192.168.1.1'):
+        ip = '192.168.1.1' if len(ip) == 0 else ip
         self.base_url = 'http://' + ip + '/Action'
         self.headers = login.login(
             self.base_url,  password)
