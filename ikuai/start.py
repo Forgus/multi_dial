@@ -4,18 +4,20 @@ import requests as req
 import json
 import getpass
 
-login_url = input("Router's host(192.168.1.1):")
+login_addr = input("Router's login address(192.168.1.1):")
 host = '192.168.1.1'
-if ':' in login_url:
-    host = host.split(':')[0]
-elif len(login_url) != 0:
-    host = login_url
-else:
-    login_url = '192.168.1.1'
-
+if ':' in login_addr:
+    host = login_addr.split(':')[0]
+elif len(login_addr) != 0:
+    host = login_addr
 pwd = getpass.getpass(prompt="admin@" + host + "'s password:")
-ros = Router(pwd, login_url)
-dial_info = ros.get_dial_info()
+target_num = input("Input your target dial num:")
+if len(target_num) == 0:
+    target_num = 5
+else:
+    target_num = int(target_num)
+ros = Router(pwd, login_addr)
+dial_info = ros.get_dial_info(target_num)
 multi_pppoe_status = dial_info['status']
 
 
@@ -31,11 +33,11 @@ print('名称 账号 密码 备注 IP')
 for config in dial_info['config_list']:
     print(config['vlan_name'], config['username'], config['passwd'],
           config['comment'], config['ip_addr'])
-dial_num = dial_info['dial_num']
-print('总拨号个数:', dial_num)
+print('总拨号个数:', dial_info['dial_num'], '预期成功个数:', target_num)
 restart_num = 0
+success_num = len(dial_info['success_list'])
 while (multi_pppoe_status != 'Success'):
-    dial_info = ros.get_dial_info()
+    dial_info = ros.get_dial_info(target_num)
     id_list = get_id_list(dial_info)
     success_list = dial_info['success_list']
     if len(success_list) != 0:
@@ -51,7 +53,9 @@ while (multi_pppoe_status != 'Success'):
     ros.macvlan_up(id_list)
     print("sleep 15 seconds to wait macvlan restart...")
     time.sleep(15)
-    multi_pppoe_status = ros.get_dial_info()['status']
+    dial_info = ros.get_dial_info(target_num)
+    multi_pppoe_status = dial_info['status']
+    success_num = len(dial_info['success_list'])
     wait_times = 1
     while (multi_pppoe_status == 'Pending' and wait_times <= 60):
         print("wait more 10 seconds to pppoe connect...wait_times:%d" %
@@ -59,4 +63,4 @@ while (multi_pppoe_status != 'Success'):
         time.sleep(10)
         multi_pppoe_status = ros.get_dial_info()['status']
         wait_times = wait_times + 1
-print('恭喜!', dial_info['dial_num'], '拨成功！')
+print('恭喜!', success_num, '拨成功！')

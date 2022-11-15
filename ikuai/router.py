@@ -11,7 +11,7 @@ class Router():
             self.base_url,  password)
         self.common_url = self.base_url + "/call"
 
-    def get_dial_info(self):
+    def get_dial_info(self, target_num):
         payload = json.dumps({
             "action": "show",
             "func_name": "wan",
@@ -54,7 +54,7 @@ class Router():
         dial_info['success_list'] = success_list
         dial_info['fail_list'] = fail_list
         success_num = len(success_list)
-        if success_num == dial_num:
+        if success_num >= target_num:
             dial_info['status'] = 'Success'
         elif success_num == 0 and enabled == 'yes':
             dial_info['status'] = 'Pending'
@@ -69,23 +69,23 @@ class Router():
         return id_str.rstrip(',')
 
     def macvlan_down(self, id_list):
+        id_str = self.gen_id_str(id_list)
         payload = json.dumps({
             "action": "vlan_down",
             "func_name": "wan",
             "param": {
-                "id": self.gen_id_str(id_list)
+                "id": id_str
             }
         })
-        resp = req.post(self.common_url, headers=self.headers, data=payload)
-        print("macvlan_down,result:" + resp.json()['ErrMsg'])
+        req.post(self.common_url, headers=self.headers, data=payload)
 
     def macvlan_up(self, id_list):
+        id_str = self.gen_id_str(id_list)
         payload = json.dumps({
             "action": "vlan_up",
             "func_name": "wan",
             "param": {
-                "id": self.gen_id_str(id_list)
+                "id": id_str
             }
         })
-        resp = req.post(self.common_url, headers=self.headers, data=payload)
-        print('macvlan_up result:' + resp.json()['ErrMsg'])
+        req.post(self.common_url, headers=self.headers, data=payload)
