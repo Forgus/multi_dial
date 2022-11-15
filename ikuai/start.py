@@ -41,15 +41,16 @@ while (multi_pppoe_status != 'Success'):
     if len(success_list) != 0:
         print('成功线路: ', success_list, '失败线路: ',
               dial_info['fail_list'])
+        time.sleep(5)
         print('停用所有线路...')
         ros.macvlan_down(id_list)
-        print("sleep 10 seconds to wait macvlan shutdown...")
-        time.sleep(10)
+        print("sleep 15 seconds to wait macvlan shutdown...")
+        time.sleep(15)
     restart_num = restart_num + 1
     print("重新尝试并发拨号，尝试次数: %d" % (restart_num))
     ros.macvlan_up(id_list)
-    print("sleep 10 seconds to wait macvlan restart...")
-    time.sleep(10)
+    print("sleep 15 seconds to wait macvlan restart...")
+    time.sleep(15)
     multi_pppoe_status = ros.get_dial_info()['status']
     wait_times = 1
     while (multi_pppoe_status == 'Pending' and wait_times <= 60):
