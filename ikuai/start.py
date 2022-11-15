@@ -3,6 +3,8 @@ import time
 import requests as req
 import json
 import getpass
+import paramiko
+import os
 
 login_addr = input("Router's login address(192.168.1.1):")
 host = '192.168.1.1'
@@ -27,6 +29,13 @@ def get_id_list(dial_info):
         id_list.append(config['id'])
     return id_list
 
+def start_task(ip):
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(ip,22,"root", "1")   
+    execmd = 'docker start wxedge'
+    ssh.exec_command (execmd) 
+    ssh.close()
 
 print('多拨配置: ')
 print('名称 账号 密码 备注 IP')
@@ -46,13 +55,13 @@ while (multi_pppoe_status != 'Success'):
         time.sleep(5)
         print('停用所有线路...')
         ros.macvlan_down(id_list)
-        print("sleep 15 seconds to wait macvlan shutdown...")
-        time.sleep(15)
+        print("sleep 30 seconds to wait macvlan shutdown...")
+        time.sleep(30)
     restart_num = restart_num + 1
     print("重新尝试并发拨号，尝试次数: %d" % (restart_num))
     ros.macvlan_up(id_list)
-    print("sleep 15 seconds to wait macvlan restart...")
-    time.sleep(15)
+    print("sleep 25 seconds to wait macvlan restart...")
+    time.sleep(25)
     dial_info = ros.get_dial_info(target_num)
     multi_pppoe_status = dial_info['status']
     success_num = len(dial_info['success_list'])
@@ -64,3 +73,9 @@ while (multi_pppoe_status != 'Success'):
         multi_pppoe_status = ros.get_dial_info()['status']
         wait_times = wait_times + 1
 print('恭喜!', success_num, '拨成功！')
+os.system('docker start wxedge')
+start_task('192.168.1.55')
+start_task('192.168.1.65')
+start_task('192.168.1.75')
+start_task('192.168.1.85')
+start_task('192.168.1.2')
