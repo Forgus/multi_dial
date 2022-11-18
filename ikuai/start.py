@@ -13,6 +13,15 @@ if ':' in login_addr:
 elif len(login_addr) != 0:
     host = login_addr
 pwd = getpass.getpass(prompt="admin@" + host + "'s password:")
+iface_list = []
+iface_str = input("Input interface(wan1):")
+if len(iface_str) == 0:
+    iface_list.append('wan1')
+elif ',' in iface_str:
+    iface_list = iface_str.split(',')
+else:
+    iface_list.append(iface_str)
+
 target_num = input("Input your target dial num:")
 if len(target_num) == 0:
     target_num = 5
