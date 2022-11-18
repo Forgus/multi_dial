@@ -84,7 +84,7 @@ class Router():
             for list in info1['fail_list']:
                 fail_list.append(list)
             for list in info2['fail_list']:
-                success_list.append(list)
+                fail_list.append(list)
             config_list = []
             for list in info1['config_list']:
                 config_list.append(list)
