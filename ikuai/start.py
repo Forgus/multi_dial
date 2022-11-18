@@ -58,10 +58,10 @@ def get_fail_id_list(dial_info):
 
 
 print('多拨配置: ')
-print('名称 账号 密码 备注 IP 状态')
+print('名称 账号 密码 备注 状态 IP')
 for config in dial_info['config_list']:
     print(config['vlan_name'], config['username'], config['passwd'],
-          config['comment'], config['ip_addr'], config['enabled'])
+          config['comment'], config['enabled'], config['ip_addr'])
 print('总拨号个数:', dial_info['dial_num'], '预期成功个数:', target_num)
 restart_num = 0
 success_num = len(dial_info['success_list'])
