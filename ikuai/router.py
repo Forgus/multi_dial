@@ -27,47 +27,79 @@ class Router():
         })
         return req.post(self.common_url, headers=self.headers, data=payload)
 
+    def get_single_dial_info(self, iface):
+        resp = self.get_dial_result(iface)
+        enabled = 'no'
+        resp_data = resp.json()['Data']
+        success_list = []
+        fail_list = []
+        config_list = []
+        for iface in resp_data['vlan_data']:
+            enabled = iface['enabled']
+            ip_addr = iface['pppoe_ip_addr']
+            vlan_name = iface['vlan_name']
+            if len(ip_addr) != 0:
+                success_list.append(vlan_name)
+            else:
+                fail_list.append(vlan_name)
+            config_info = {}
+            config_info['id'] = iface['id']
+            config_info['vlan_name'] = vlan_name
+            config_info['username'] = iface['username']
+            config_info['passwd'] = iface['passwd']
+            config_info['ip_addr'] = ip_addr
+            config_info['comment'] = iface['comment']
+            config_info['enabled'] = '启用' if enabled == 'yes' else '停用'
+            config_list.append(config_info)
+        dial_info = {}
+        dial_info['config_list'] = config_list
+        dial_info['dial_num'] = resp_data['vlan_total']
+        dial_info['success_list'] = success_list
+        dial_info['fail_list'] = fail_list
+        return dial_info
+
     def get_dial_info(self, iface_list, target_num):
-        resp = ''
         if len(iface_list) == 1:
-            resp = self.get_dial_result(iface_list[0])
-            enabled = ''
-            resp_data = resp.json()['Data']
-            dial_num = resp_data['vlan_total']
-            success_list = []
-            fail_list = []
-            dial_info = {}
-            config_list = []
-            for iface in resp_data['vlan_data']:
-                enabled = iface['enabled']
-                ip_addr = iface['pppoe_ip_addr']
-                vlan_name = iface['vlan_name']
-                if len(ip_addr) != 0:
-                    success_list.append(vlan_name)
-                else:
-                    fail_list.append(vlan_name)
-                config_info = {}
-                config_info['id'] = iface['id']
-                config_info['vlan_name'] = vlan_name
-                config_info['username'] = iface['username']
-                config_info['passwd'] = iface['passwd']
-                config_info['ip_addr'] = ip_addr
-                config_info['comment'] = iface['comment']
-                config_info['enabled'] = '启用' if enabled == 'yes' else '停用'
-                config_list.append(config_info)
-            dial_info['config_list'] = config_list
-            dial_info['dial_num'] = dial_num
-            dial_info['success_list'] = success_list
-            dial_info['fail_list'] = fail_list
-            success_num = len(success_list)
+            dial_info = self.get_single_dial_info(iface_list[0])
+            success_num = len(dial_info['success_list'])
             if success_num >= target_num:
                 dial_info['status'] = 'Success'
-            elif success_num == 0 and enabled == 'yes':
+            elif success_num == 0 and dial_info['enabled'] == '启用':
                 dial_info['status'] = 'Pending'
             else:
                 dial_info['status'] = 'Failed'
             return dial_info
-        return ''
+        if len(iface_list) == 2:
+            info1 = self.get_single_dial_info(iface_list[0])
+            info2 = self.get_single_dial_info(iface_list[1])
+            s_list1 = info1['success_list']
+            s_list2 = info2['success_list']
+            dial_info = {}
+            success_list = []
+            success_list.append(s_list1)
+            success_list.append(s_list2)
+            fail_list = []
+            fail_list.append(info1['fail_list'])
+            fail_list.append(info2['fail_list'])
+            config_list = []
+            for list in info1['config_list']:
+                config_list.append(list)
+            for list in info2['config_list']:
+                config_list.append(list)
+            dial_info = {}
+            dial_info['config_list'] = config_list
+            dial_info['dial_num'] = info1['dial_num'] + info2['dial_num']
+            dial_info['success_list'] = success_list
+            dial_info['fail_list'] = fail_list
+            success_num = len(s_list1) + len(s_list2)
+            if success_num >= target_num and len(s_list1) > 0 and len(s_list2) > 0:
+                dial_info['status'] = 'Success'
+            elif success_num == 0 and dial_info['enabled'] == '启用':
+                dial_info['status'] = 'Pending'
+            else:
+                dial_info['status'] = 'Failed'
+            return dial_info
+        return {}
 
     def gen_id_str(self, id_list):
         id_str = ''

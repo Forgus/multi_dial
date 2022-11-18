@@ -28,7 +28,7 @@ if len(target_num) == 0:
 else:
     target_num = int(target_num)
 ros = Router(pwd, login_addr)
-dial_info = ros.get_dial_info(target_num)
+dial_info = ros.get_dial_info(iface_list, target_num)
 multi_pppoe_status = dial_info['status']
 
 
@@ -38,24 +38,36 @@ def get_id_list(dial_info):
         id_list.append(config['id'])
     return id_list
 
+
 def start_task(ip):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(ip,22,"root", "1")   
+    ssh.connect(ip, 22, "root", "1")
     execmd = 'docker start wxedge'
-    ssh.exec_command (execmd) 
+    ssh.exec_command(execmd)
     ssh.close()
 
+
+def get_fail_id_list(dial_info):
+    id_list = []
+    fail_list = dial_info['fail_list']
+    for config in dial_info['config_list']:
+        if config['vlan_name'] in fail_list:
+            id_list.append(config['id'])
+    return id_list
+
+
 print('多拨配置: ')
-print('名称 账号 密码 备注 IP')
+print('名称 账号 密码 备注 IP 状态')
 for config in dial_info['config_list']:
     print(config['vlan_name'], config['username'], config['passwd'],
-          config['comment'], config['ip_addr'])
+          config['comment'], config['ip_addr'], config['enabled'])
 print('总拨号个数:', dial_info['dial_num'], '预期成功个数:', target_num)
+print(dial_info)
 restart_num = 0
 success_num = len(dial_info['success_list'])
 while (multi_pppoe_status != 'Success'):
-    dial_info = ros.get_dial_info(target_num)
+    dial_info = ros.get_dial_info(iface_list, target_num)
     id_list = get_id_list(dial_info)
     success_list = dial_info['success_list']
     if len(success_list) != 0:
@@ -71,7 +83,7 @@ while (multi_pppoe_status != 'Success'):
     ros.macvlan_up(id_list)
     print("sleep 25 seconds to wait macvlan restart...")
     time.sleep(25)
-    dial_info = ros.get_dial_info(target_num)
+    dial_info = ros.get_dial_info(iface_list, target_num)
     multi_pppoe_status = dial_info['status']
     success_num = len(dial_info['success_list'])
     wait_times = 1
@@ -79,12 +91,20 @@ while (multi_pppoe_status != 'Success'):
         print("wait more 10 seconds to pppoe connect...wait_times:%d" %
               (wait_times))
         time.sleep(10)
-        multi_pppoe_status = ros.get_dial_info()['status']
+        multi_pppoe_status = ros.get_dial_info(
+            iface_list, target_num)['status']
         wait_times = wait_times + 1
 print('恭喜!', success_num, '拨成功！')
-os.system('docker start wxedge')
-start_task('192.168.1.55')
-start_task('192.168.1.65')
-start_task('192.168.1.75')
-start_task('192.168.1.85')
-start_task('192.168.1.2')
+print('成功线路: ', dial_info['success_list'], '失败线路: ',
+      dial_info['fail_list'])
+print('停用失败线路...')
+fail_id_list = get_fail_id_list(dial_info)
+ros.macvlan_down(fail_id_list)
+print('停用成功.')
+# print('启动所有任务')
+#os.system('docker start wxedge')
+# start_task('192.168.1.55')
+# start_task('192.168.1.65')
+# start_task('192.168.1.75')
+# start_task('192.168.1.85')
+# start_task('192.168.1.2')
