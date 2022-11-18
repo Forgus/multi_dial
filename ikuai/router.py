@@ -64,7 +64,7 @@ class Router():
             success_num = len(dial_info['success_list'])
             if success_num >= target_num:
                 dial_info['status'] = 'Success'
-            elif success_num == 0 and dial_info['enabled'] == '启用':
+            elif success_num == 0:
                 dial_info['status'] = 'Pending'
             else:
                 dial_info['status'] = 'Failed'
@@ -76,11 +76,15 @@ class Router():
             s_list2 = info2['success_list']
             dial_info = {}
             success_list = []
-            success_list.append(s_list1)
-            success_list.append(s_list2)
+            for list in s_list1:
+                success_list.append(list)
+            for list in s_list2:
+                success_list.append(list)
             fail_list = []
-            fail_list.append(info1['fail_list'])
-            fail_list.append(info2['fail_list'])
+            for list in info1['fail_list']:
+                fail_list.append(list)
+            for list in info2['fail_list']:
+                success_list.append(list)
             config_list = []
             for list in info1['config_list']:
                 config_list.append(list)
@@ -94,7 +98,7 @@ class Router():
             success_num = len(s_list1) + len(s_list2)
             if success_num >= target_num and len(s_list1) > 0 and len(s_list2) > 0:
                 dial_info['status'] = 'Success'
-            elif success_num == 0 and dial_info['enabled'] == '启用':
+            elif success_num == 0:
                 dial_info['status'] = 'Pending'
             else:
                 dial_info['status'] = 'Failed'

@@ -63,7 +63,6 @@ for config in dial_info['config_list']:
     print(config['vlan_name'], config['username'], config['passwd'],
           config['comment'], config['ip_addr'], config['enabled'])
 print('总拨号个数:', dial_info['dial_num'], '预期成功个数:', target_num)
-print(dial_info)
 restart_num = 0
 success_num = len(dial_info['success_list'])
 while (multi_pppoe_status != 'Success'):
